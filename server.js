@@ -9,11 +9,14 @@ const PORT = process.env.PORT || 4001;
 
 app.use(express.static('public'));
 
-app.listen(PORT);
+app.listen(PORT, () => {
+    console.log(`Server is listening on port ${PORT}.`)
+});
 
 app.get('/api/quotes/random', (req, res, next) => {
-    const randomQuote = getRandomElement(quotes);
-    res.send(randomQuote);
+    const sendQuote = { quote: {} };
+    sendQuote.quote = getRandomElement(quotes);
+    res.send(sendQuote);
 });
 
 app.get('/api/quotes', (req, res, next) => {
@@ -22,11 +25,22 @@ app.get('/api/quotes', (req, res, next) => {
     const quotesOnly = { quotes: []};
     
     if (req.query.person){
-        quotesBy.forEach(element => quotesOnly.quotes.push(element.quote));
+        quotesBy.forEach(element => quotesOnly.quotes.push(element));
         res.send(quotesOnly);
     } else {
-        quotes.forEach(element => quotesOnly.quotes.push(element.quote));
+        quotes.forEach(element => quotesOnly.quotes.push(element));
         res.send(quotesOnly);
     }    
 });
 
+app.post('/api/quotes', (req, res, next) => {
+    const newQuote = { quote: {} };
+    newQuote.quote = req.query;
+    
+    if (req.query.person && req.query.quote){
+        quotes.push(newQuote.quote)
+        res.send(newQuote)
+    } else {
+        res.status(400).send();
+    }
+});
